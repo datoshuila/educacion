@@ -27,7 +27,7 @@ if(!exists('conn')){
         , password = parameters$credentials$password
         , dbname = parameters$credentials$database
     )
-    # List all connection opened: RPostgreSQL::dbListConnections(drv = PostgreSQL())
+    # Command to list all connection opened: RPostgreSQL::dbListConnections(drv = PostgreSQL())
 }
 
 # ---- Close all connections when app is closed ----
@@ -37,6 +37,7 @@ onStop(function() {
 
 # ---- PostgreSQL Get Queries ----
 parameters$q.matriculas <- getSQL("data/matriculas.sql")
+parameters$q.aprobados <- getSQL("data/aprobados.sql")
 
 # ---- Remove global variables ----
 rm(getSQL)

@@ -5,13 +5,35 @@ require(shinyjs)
 require(shiny)
 require(shinydashboard)
 require(DT)
+require(leaflet)
+require(ggvis)
+
+require(RColorBrewer)
+require(shinyBS)
+require(rhandsontable)
+require(jsonlite)
 
 # ---- Set initial parameters ----
 parameters <- list(""
-    , credentials = ini::read.ini("../../../credentials.ini")$pgsql_analytics
-    , title = "Educación"
-    , logo = "../../../logos/logo.png"
-    , favicon = "../../../logos/favicon.png"
+    , credentials = ini::read.ini("../credentials.ini")$pgsql_analytics
+    , title = "Secretaría de Educación"
+    , subtitle = "Matriculados Bachilleres del Huila"
+    , url = "http://sirhuila.gov.co"
+    , logo = "logo.png"
+    , favicon = "favicon.ico"
+    , footer = list(
+        sir = list(""
+            , color = "color:#3C3A2E;"
+            , url = "http://sirhuila.gov.co/"
+            , img = "footer_sir.png"
+            , title = "Sistema de Información Regional del Huila"
+        ), gob = list(""
+            , color = "color:#3C3A2E;"
+            , url = "http://huila.gov.co/"
+            , img = "footer_gob.png"
+            , title = "Gobernación del Huila"
+        )
+    )
     , default_tab = "general"
     , menu = list(""
         , tab1 = list(""

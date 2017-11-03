@@ -5,6 +5,7 @@
 	, a.are_nombre AS "Area"
 	, tne.tpne_nombre AS "Tipo Nivel Educativo"
 	, g.gra_nombre AS "Grado"
+	, g.gra_codigo - 1 AS "Numero Grado"
 	, m.mat_num_matriculas AS "Numero Matriculas"
 	, m.mat_porce_cobertura as "Porcentaje de Cobertura"
 FROM "Educacion"."matriculas" AS m

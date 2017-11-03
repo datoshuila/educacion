@@ -1,10 +1,10 @@
 <label>Retroalimentación</label>
 
-Para sugerir cambios o inconsistencias en los datos disponibles, por favor contacta sirhuila2014@gmail.com
+Para sugerir cambios o inconsistencias en los datos disponibles, por favor contacta a sirhuila2014@gmail.com
 
 <label>Autores</label>
 
-Los autores del análisis y procesamiento de datos son [Camilo Cabrera](https://www.linkedin.com/in/camilo-cabrera-21663b17/) y [Efrain Perdomo](https://www.linkedin.com/in/efrain-perdomo-cardozo-7172ab67/). El formato de la página y el código de referencia son de [Melanie Bacou](https://www.linkedin.com/in/mbacou/) y [Guo Zhe](https://www.linkedin.com/in/zhe-guo-09344360/).
+[Cabrera, Camilo](https://www.linkedin.com/in/camilo-cabrera-21663b17/); [Perdomo, Efrain](https://www.linkedin.com/in/efrain-perdomo-cardozo-7172ab67/)
 
 <label>Créditos</label>
 

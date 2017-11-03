@@ -5,9 +5,8 @@ ui <- function(){shinyUI(fluidPage(
         tags$head(
             tags$link(rel = "shortcut icon", href= parameters$favicon , tags$title("Favicon"))
         )
-    )
-    , theme= "bootstrap.css"
-    # tags$head(includeScript("../assets/ga.js")),
+    ), theme= "bootstrap.css"
+    # tags$head(includeScript("../assets/ga.js"))
     
     # Header
     , fluidRow(class="hc"
@@ -18,98 +17,93 @@ ui <- function(){shinyUI(fluidPage(
     # Map
     , fluidRow(style="position:relative;"
         , leafletOutput("map", height=380, width="100%")
-        , absolutePanel(
-            top = 5
-            , right = 5
-            , sliderInput("range", "Magnitudes", min(quakes$mag), max(quakes$mag), value = range(quakes$mag), step = 0.1)
-            , selectInput("colors", "Color Scheme", rownames(subset(brewer.pal.info, category %in% c("seq", "div"))))
-            , checkboxInput("legend", "Show legend", TRUE)
-        )
+        # , absolutePanel(
+        #     top = 5
+        #     , right = 5
+        #     , sliderInput("range", "Magnitudes", min(quakes$mag), max(quakes$mag), value = range(quakes$mag), step = 0.1)
+        #     , selectInput("colors", "Color Scheme", rownames(subset(brewer.pal.info, category %in% c("seq", "div"))))
+        #     , checkboxInput("legend", "Show legend", TRUE)
+        # )
     )
     
     # Body
     , fluidRow(
         # Firt Column
-        column(4
+        column(3
             , p(br())
-            , p("Use this tool to send and compare results from (bulk) requests to travel distance APIs provided
-            by Google, HERE, MAPZEN, and OpenStreetMap.")
+            , p("Utiliza esta herramienta para conocer la información estadística de matrículas del 
+                Departamento del Huila. Usa el filtro por municipio para conocer sus cifras de 
+                educación (matrículas, índice de aprobados y cobertura).")
             , hr()
-            , p("You will need to provide", strong("your own API keys"), "to send larger requests to"
-            , a("Google", href="https://developers.google.com/maps/documentation/distance-matrix/usage-limits"),
-            "and", a("HERE", href="https://developer.here.com/rest-apis/documentation/routing/topics/quick-start.html"),
-            "or", a("MAPZEN", href="https://mapzen.com/documentation/mobility/matrix/api-reference/"),
-            "APIs. Without a key requests are limited to 200 pairs of locations. Please use the
-            links here and register if needed.")
-            , textInput("txtKeyGOOG", "Your Google API key",
-                         placeholder="Sign in with Google and enter your API key")
-            , actionLink("btnKeyGOOG", "update key", icon("refresh"))
-            , p(br())
-            , textInput("txtKeyMAPZ", "Your Mapzen API key",
-                         placeholder="Sign in with Mapzen and enter your API key")
-            , actionLink("btnKeyMAPZ", "update key", icon("refresh"))
-            , p(br(), "HERE API requires both an App ID and an App Code.")
-            , textInput("txtKeyHEREid","Your HERE App ID", placeholder="Sign in with HERE and enter your API key")
-            , textInput("txtKeyHEREcode","Your HERE App Code",placeholder="Sign in with HERE and enter your API key")
-            , actionLink("btnKeyHERE", "update key", icon("refresh"))
+            , wellPanel(
+                selectInput("municipio", label = "Selecciona el municipio", choices = {
+                    query <- "SELECT mun_nombre FROM public.municipio ORDER BY mun_nombre"
+                    data.table(pool::dbGetQuery(conn, query))$mun_nombre
+                }, multiple = TRUE)
+                , p("La herramienta por defecto agrupa todos los municipios. Si quieres filtrar
+                    un municipio en específico utiliza el filtro.")
+                , hr()
+                , sliderInput("ano", label = "Filtra por rango de años", min = {
+                    query <- "SELECT min(mat_anio) from \"Educacion\".\"matriculas\""
+                    data.table(pool::dbGetQuery(conn, query))$min
+                }, max = {
+                    query <- "SELECT max(mat_anio) from \"Educacion\".\"matriculas\""
+                    data.table(pool::dbGetQuery(conn, query))$max
+                }, value = {
+                    query <- "SELECT max(mat_anio) from \"Educacion\".\"matriculas\""
+                    max <- data.table(pool::dbGetQuery(conn, query))$max
+                    c(max - 7, max)
+                }, sep = "", step = 1)
+            )
             , hr()
             , includeMarkdown("www/credits.md")
             , p(br())
         )
         # Second Column
-        , column(8
-            , h3("Origins and Destinations")
-            , p("Use a CSV notation with at least a", code("X"), code("Y"), "and", code("ID"), "columns.")
+        , column(9
+            , h3("Bachillerato en el Huila")
+            , p("Los matriculados se categorizan por tipo de institución (Oficiales y No Oficiales)
+                con el propósito de conocer la proporción de la oferta educativa en cada 
+                municipio. En formato de líneas está la información disponible sobre el porcentaje de 
+                cobertura por año y por municipio. Se calculado como el número de matriculados dividido
+                por el número de personas en edad de estudiar. El porcentaje de aprobados se calcula como 
+                la proporción de estudiantes que aprobaron contra los que reprobaron.")
             , p(br())
             , fluidRow(
-                column(6,
-                       h4("Population Trends", tags$small("2000-2020 (headcount)")),
-                       p("Urban and rural population growth and projected trends in coastal and inland areas.
-                        Coastal areas are within", em("150 km", "of the nearest coastline.")),
-                       ggvisOutput("graph"))
-                , column(6
-                    # Destinations
-                    , actionLink("btnTo", "Map destination locations", icon("globe"), style="float:right;")
-                    , div(class="fix", textAreaInput("txtTo", width="100%", rows=9, resize="vertical", label="Destination locations"
-                        , value='
-                            "X", "Y", "ID"
-                            35.85439, -5.085751, "Loc 03"
-                            39.25198, -6.860888, "Loc 04"
-                            36.72286, -6.456619, "Loc 05"'
+                column(9,
+                    h4("Desempeño ", tags$small(textOutput("fechas", inline = TRUE)))
+                    , htmlOutput("parrafo")
+                    , plotlyOutput("graph")
+                ) , column(3
+                    # Export
+                    , div(
+                        # style="float: left; margin-right: 15px;",
+                     selectInput("fileType", "Escoge el formato para exportar"
+                                 , choices=c(`Separado por comas (CSV)`="csv"
+                                             , `Archivos Shape ESRI`= "esri")
+                                 , selected="csv"
                         )
                     )
-                    , bsAlert("alertTo")
+                    , HTML("<label>&nbsp;</label><br />")
+                    , downloadButton("saveData", "Guardar resultados", class="btn-info")
+                    , p(br(clear="left"), "Escoge el formato Shape ESRI para guardar las ubicaciones (puntos)
+                        mostrados en el mapa. Escoge Archivos separados por comas (CSV) para exportar las estadísticas
+                        de educación bachilleto del departamento usando los filtros seleccionados.")
+                    , p(br())
                 )
             )
-            , actionButton("btnMain", "Generate Travel Times", icon("exchange"), class="btn-primary")
-            # Results
-            , h3("Travel Times")
-            , p("Results are shown in the table below. The entire API response in JSON format
-        is also available. Use the download options below to save your results.
-        You can also use your keyboard Crtl+C/Ctrl+V to copy and paste entries.")
+            
+            , h3("Grados")
+            , p("A continuación la tabla del desempeño de los estudiantes por año y por grado.
+                Hay dos visualizaciones posibles: tabla y gráfica")
             , tabsetPanel(
-                tabPanel("Table", p(br(), "Driving time for each pair of locations.")
-                    , rHandsontableOutput("tbResults", width="100%")
-                    , helpText(br(), textOutput("txtNoteHERE", inline=T), class="small")
+                tabPanel("Gráfica", p(br(), "Gráfica de grados de estudio en el bachillerato."
+                    , plotlyOutput("heatmap", width ="100%"))
                 )
-                , tabPanel("JSON Response", p(br(), "Entire JSON response.")
-                            # , jsoneditOutput("jsResults", height="280px")
-                )
-            )
-            , p(br())
-            # Export
-            , div(style="float: left; margin-right: 15px;",
-                selectInput("fileType", "Choose Export Format"
-                    , choices=c(`ESRI Shapefile`="shp"
-                        , `Comma-separated (CSV)`="csv")
-                        , selected="csv"
+                , tabPanel("Tabla", p(br(), "Tabla de grados de estudio en el bachillerato.")
+                    , rHandsontableOutput("table", width="100%")
                 )
             )
-            , HTML("<label>&nbsp;</label><br />")
-            , downloadButton("btnSave", "Save Results", class="btn-info")
-            , p(br(clear="left"), "Choose ESRI Shapefile to save the point locations
-        shown on the maps, CSV to export a table of travel time statistics for the
-        selected pairs of points.")
             , p(br())
         )
     )

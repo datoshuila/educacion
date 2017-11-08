@@ -120,10 +120,10 @@ ui <- function(){shinyUI(fluidPage(
                 de datos licenciados bajo la ", a(href="http://creativecommons.org/licenses/by-nc-sa/4.0/"
                 , target="_blank", "Licencia Internacional Creative Commons Attribution-NonCommercial-ShareAlike 4.0."))
         ) , column(2
-            , a(style=parameters$footer$sir$color, href=parameters$footer$sir$url, img(src=parameters$footer$sir$img)
+            , a(style=parameters$footer$sir$style, href=parameters$footer$sir$url, img(src=parameters$footer$sir$img)
                 , title=parameters$footer$sir$title)
         ) , column(2
-            , a(style=parameters$footer$gob$color, href=parameters$footer$gob$url, img(src=parameters$footer$gob$img)
+            , a(style=parameters$footer$gob$style, href=parameters$footer$gob$url, img(src=parameters$footer$gob$img)
                 , title=parameters$footer$gob$title)
         )
     )

@@ -31,9 +31,9 @@ ui <- function(){shinyUI(fluidPage(
         # Firt Column
         column(3
             , p(br())
-            , p("Utiliza esta herramienta para conocer la información estadística de matrículas del 
-                Departamento del Huila. Usa el filtro por municipio para conocer sus cifras de 
-                educación (matrículas, índice de aprobados y cobertura).")
+            , p("Utiliza esta herramienta para conocer la información estadística de la Secretaría
+                de Educación del Departamento del Huila. Usa los filtros de municipio y año para 
+                conocer las respectivas cifras de cada categoría.")
             , hr()
             , wellPanel(
                 selectInput("municipio", label = "Selecciona el municipio", choices = {
@@ -61,50 +61,67 @@ ui <- function(){shinyUI(fluidPage(
         )
         # Second Column
         , column(9
-            , h3("Bachillerato en el Huila")
-            , p("Los matriculados se categorizan por tipo de institución (Oficiales y No Oficiales)
-                con el propósito de conocer la proporción de la oferta educativa en cada 
-                municipio. En formato de líneas está la información disponible sobre el porcentaje de 
-                cobertura por año y por municipio. Se calculado como el número de matriculados dividido
-                por el número de personas en edad de estudiar. El porcentaje de aprobados se calcula como 
-                la proporción de estudiantes que aprobaron contra los que reprobaron.")
-            , p(br())
-            , fluidRow(
-                column(9,
+            , h3("Educación")
+            , p("Información de la Educación en el Departamento del Huila separado por 
+                Bachillerato, Educación Superior y SENA")
+            , tabsetPanel(
+                tabPanel("Bachillerato"
+                    , h3("Bachillerato en el Huila")
+                    , p("Los matriculados se categorizan por tipo de institución (Oficiales y No Oficiales)
+                    con el propósito de conocer la proporción de la oferta educativa en cada 
+                    municipio. En formato de líneas está la información disponible sobre el porcentaje de 
+                    cobertura por año y por municipio. Se calculado como el número de matriculados dividido
+                    por el número de personas en edad de estudiar. El porcentaje de aprobados se calcula como 
+                    la proporción de estudiantes que aprobaron contra los que reprobaron.")
+                    , p(br())
+                    , fluidRow(
+                    column(9,
                     h4("Desempeño ", tags$small(textOutput("fechas", inline = TRUE)))
                     , htmlOutput("parrafo")
                     , plotlyOutput("graph")
-                ) , column(3
+                    ) , column(3
                     # Export
                     , div(
-                        # style="float: left; margin-right: 15px;",
-                     selectInput("fileType", "Escoge el formato para exportar"
-                                 , choices=c(`Separado por comas (CSV)`="csv"
-                                             , `Archivos Shape ESRI`= "esri")
-                                 , selected="csv"
-                        )
+                    # style="float: left; margin-right: 15px;",
+                    selectInput("fileType", "Escoge el formato para exportar"
+                    , choices=c(`Separado por comas (CSV)`="csv"
+                    , `Archivos Shape ESRI`= "esri")
+                    , selected="csv"
+                    )
                     )
                     , HTML("<label>&nbsp;</label><br />")
                     , downloadButton("saveData", "Guardar resultados", class="btn-info")
                     , p(br(clear="left"), "Escoge el formato Shape ESRI para guardar las ubicaciones (puntos)
-                        mostrados en el mapa. Escoge Archivos separados por comas (CSV) para exportar las estadísticas
-                        de educación bachilleto del departamento usando los filtros seleccionados.")
+                    mostrados en el mapa. Escoge Archivos separados por comas (CSV) para exportar las estadísticas
+                    de educación bachilleto del departamento usando los filtros seleccionados.")
+                    , p(br())
+                    )
+                    )
+                    
+                    , h3("Grados")
+                    , p("A continuación la tabla del desempeño de los estudiantes por año y por grado.
+                    Hay dos visualizaciones posibles: tabla y gráfica")
+                    , tabsetPanel(
+                    tabPanel("Gráfica", p(br(), "Gráfica de grados de estudio en el bachillerato."
+                    , plotlyOutput("heatmap", width ="100%"))
+                    )
+                    , tabPanel("Tabla", p(br(), "Tabla de grados de estudio en el bachillerato.")
+                    , rHandsontableOutput("table", width="100%")
+                    )
+                    )
                     , p(br())
                 )
-            )
-            
-            , h3("Grados")
-            , p("A continuación la tabla del desempeño de los estudiantes por año y por grado.
-                Hay dos visualizaciones posibles: tabla y gráfica")
-            , tabsetPanel(
-                tabPanel("Gráfica", p(br(), "Gráfica de grados de estudio en el bachillerato."
-                    , plotlyOutput("heatmap", width ="100%"))
+                , tabPanel("Edu. Superior", p(
+                    br()
+                    , "Información de Educación Superior en el Huila"
+                    )
                 )
-                , tabPanel("Tabla", p(br(), "Tabla de grados de estudio en el bachillerato.")
-                    , rHandsontableOutput("table", width="100%")
+                , tabPanel("SENA", p(
+                    br()
+                    , "Información del SENA del Departamento del Huila"
+                    )
                 )
             )
-            , p(br())
         )
     )
 

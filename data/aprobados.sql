@@ -1,4 +1,5 @@
-﻿SELECT
+-- Desempeño de los estudiantes (aprobados, reprobados, desertores) por municipio, año, tipo institución (oficinal, no oficial). 
+SELECT
     m.mun_nombre as "Municipio"
     , c.coal_anio as "Ano"
     , ti.tpin_nombre as "Tipo Institucion"

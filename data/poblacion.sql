@@ -1,4 +1,5 @@
-﻿SELECT 
+-- Query para obtener la población en edad de estudio por municipio, año y rango 
+SELECT 
 	m.mun_nombre as "Municipio"
 	, p.ped_anio as "Ano"
 	, pe.pes_nombre as "Rango"

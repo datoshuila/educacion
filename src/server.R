@@ -123,7 +123,7 @@ server <- function(input, output, session) {
             , name = "Oficiales"
             , marker = list(color = "#3C3A2E")
             , type = "bar"
-            , hoverinfo = "none"
+            , hoverinfo = "text"
             , text = ~paste0(
                 "Año: ", `Ano`
                 , "<br>Total Matriculas: ", `Numero Matriculas`

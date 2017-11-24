@@ -64,6 +64,7 @@ server <- function(input, output, session) {
     # Graph1
     output$graph <- renderPlotly(expr = {
         # municipio = paste(c("Neiva", "Garzón"), collapse = "|")
+        # ano = c(2010, 2015)
         municipio <- paste(values$municipio, collapse = "|")
         ano <- values$ano
         

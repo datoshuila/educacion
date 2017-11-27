@@ -16,7 +16,8 @@ ui <- function(){shinyUI(fluidPage(
     
     # Map
     , fluidRow(style="position:relative;"
-        , leafletOutput("map", height=380, width="100%")
+        , tags$iframe(src = "http://qgiscloud.com/HzarateSIGDEHU/SIGDEHU/", height=380, width="100%")
+        # , leafletOutput("map", height=380, width="100%")
         # , absolutePanel(
         #     top = 5
         #     , right = 5

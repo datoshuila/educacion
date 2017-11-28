@@ -8,6 +8,7 @@ ts <- list.files(c("sql"), pattern="\\.(sql|SQL)$", recursive = TRUE, full.names
 # Store all data.tables into one single list and at the end name them.
 educacion <- lapply(X = ts, FUN = function(x){
     query <- getSQL(paste0("sql/", x))
+    print(paste0("leyendo ", x))
     data.table(pool::dbGetQuery(conn, query))
 }) ; names(educacion) <- unlist(strsplit(ts, ".sql"))
 
@@ -99,7 +100,7 @@ write.table(x = e3_2, file = "bi/e3_2.csv", sep = ",", row.names = F, na = "")
 # O el 2012 tiene información  mezclada de otras categorías que los demás años no tienen.
 
 # Gráfica de las categorias a los largo de los años.
-plot_ly(
+e3_2_1 <- plot_ly(
     data = e3[, sum(Numero, na.rm = TRUE), keyby = c("Ano", "Categoria")]
     , x = ~Ano, y = ~V1, color = ~Categoria) %>%
     add_lines()
@@ -107,7 +108,7 @@ plot_ly(
 # En el 2009 hubo una caída brusca del número de docentes y se recuperó
 
 # Gráfica del Número de Directivos docentes en cada municipio a lo largo de los años.
-plot_ly(
+e3_2_2 <- plot_ly(
     data = e3[, sum(Numero, na.rm = TRUE), keyby = c("Ano", "Municipio")]
     , x = ~Ano, y = ~V1, color = ~Municipio) %>%
     add_lines()
@@ -120,14 +121,19 @@ e4 <- educacion$docentes_universidades
 
 # A continuación el número de DATOS (no docentes) 
 e4_1 <- plot_ly(
-    data = e4[, .N, keyby = .(`dau_anio`, `Nivel Educativo`)]
-    , x = ~dau_anio, y = ~N, color = ~`Nivel Educativo`, type = "bar") %>% 
+    data = e4[, .N, keyby = .(`Ano`, `Nivel Educativo`)]
+    , x = ~Ano, y = ~N, color = ~`Nivel Educativo`, type = "bar") %>% 
     layout(yaxis = list(title = 'Número')
            , xaxis = list(title = 'Año'), barmode = 'stack', title = "Docentes Universidades")
 # No hay información del año 2005. En el 2008 hubo significativamente menos DATOS que en los demás años
 # El 2009 estuvo bajo de DATOS
 
-e4_2 <- plot_ly(data = e4[, sum(Numero, na.rm = TRUE), keyby = .(`dau_anio`, `Nivel Educativo`)], x = ~dau_anio, y = ~V1, color = ~`Nivel Educativo`, type = "bar") %>% layout(yaxis = list(title = 'Número'), xaxis = list(title = 'Año'), barmode = 'stack', title = "Docentes Universidades")
+e4_2 <- plot_ly(
+    data = e4[, sum(Numero, na.rm = TRUE), keyby = .(`Ano`, `Nivel Educativo`)]
+    , x = ~Ano, y = ~V1, color = ~`Nivel Educativo`, type = "bar") %>% 
+    layout(
+        yaxis = list(title = 'Número')
+        , xaxis = list(title = 'Año'), barmode = 'stack', title = "Docentes Universidades")
 # El 2013 y 2014 tuvieron significativamente más directivos docentes que los demás años.
 # Este incremento se puede deber a mejor recolección de los datos o un aumento verídico del número de docentes.
 
@@ -138,11 +144,11 @@ e4_3 <- plot_ly(data= e4[, sum(Numero, na.rm = TRUE), keyby = Universidad], labe
 # La universidad Surcolombiana (43.8%), La Cooperativa (20.7%) y la Corhuila (19.9%) acumulan el 83.5% de los docentes en el Departamento. 
 
 # Gráfica del Número de docentes en cada municipio a lo largo de los años.
-e4_4 <- e4[, sum(Numero, na.rm = TRUE), keyby = .(`dau_anio`, `Semestre`)]
+e4_4 <- e4[, sum(Numero, na.rm = TRUE), keyby = .(`Ano`, `Semestre`)]
 e4_4[is.na(e4_4$Semestre), Semestre := "Sin Registro"]
 plot_ly(
     data = e4_4
-    , x = ~dau_anio, y = ~V1, color = ~`Semestre`, type = "bar") %>% 
+    , x = ~Ano, y = ~V1, color = ~`Semestre`, type = "bar") %>% 
     layout(yaxis = list(title = 'Número')
            , xaxis = list(title = 'Año'), barmode = 'stack', title = "Docentes Universidades")
 # Efra: ¿qué significa que sea Semestre A o Semestre B? Si es el número en cada semestre por qué hay años que tienen Semestre A, Semestre B y valores nulos?
@@ -151,26 +157,67 @@ plot_ly(
 # De nuevo el 2015 no tiene datos. 
 
 # Gráfica del Número de docentes coloreado por género a lo largo de los años.
-e4_5 <- e4[, sum(Numero, na.rm = TRUE), keyby = .(`dau_anio`, `Genero`)]
+e4_5 <- e4[, sum(Numero, na.rm = TRUE), keyby = .(`Ano`, `Genero`)]
 e4_5[is.na(e4_5$Genero), Genero := "Sin Registro"]
 plot_ly(
     data = e4_5
-    , x = ~dau_anio, y = ~V1, color = ~`Genero`, type = "bar") %>% 
+    , x = ~Ano, y = ~V1, color = ~`Genero`, type = "bar") %>% 
     layout(yaxis = list(title = 'Número')
            , xaxis = list(title = 'Año'), barmode = 'stack', title = "Docentes Universidades")
 # Son escazos los años que tienen información de género. 
 # A excepción del 2003 y 2006, los hombres son mayoría en la docencia.
 
 # Gráfica del Número de docentes coloreado por Categoría de Docente a lo largo de los años.
-e4_6 <- e4[, sum(Numero, na.rm = TRUE), keyby = .(`dau_anio`, `Categoria Docentes`)]
+e4_6 <- e4[, sum(Numero, na.rm = TRUE), keyby = .(`Ano`, `Categoria Docentes`)]
 e4_6[is.na(e4_6$`Categoria Docentes`), `Categoria Docentes` := "Sin Registro"]
 plot_ly(
     data = e4_6
-    , x = ~dau_anio, y = ~V1, color = ~`Categoria Docentes`, type = "bar") %>% 
+    , x = ~Ano, y = ~V1, color = ~`Categoria Docentes`, type = "bar") %>% 
     layout(yaxis = list(title = 'Número')
            , xaxis = list(title = 'Año'), barmode = 'stack', title = "Docentes Universidades")
 # Hasta el 2006 existieron "Docentes Ocasionales"
 
 # Gráfica del Número de docentes coloreado por Categoría de Docente a lo largo de los años.
-e4_7 <- e4[, sum(Numero, na.rm = TRUE), keyby = .(`dau_anio`, `Universidad`, `Programa`)]
+e4_7 <- e4[, sum(Numero, na.rm = TRUE), keyby = .(`Ano`, `Universidad`, `Programa`)]
 e4_7[is.na(e4_7$`Programa`), `Programa` := "Sin Registro"]
+
+e4_7_1 <- plot_ly(
+    data = e4_7[Universidad %in% "Universidad Cooperativa de Colombia", .(Ano, Programa, V1)][order(Ano, V1, decreasing = TRUE)]
+    , x = ~Ano, y = ~V1, color = ~`Programa`, type = "bar") %>% 
+    layout(yaxis = list(title = 'Número de Docentes')
+           , xaxis = list(title = 'Año'), barmode = 'stack', title = "Programas Universidad Cooperativa de Colombia")
+# Esta gráfica hay que colocarla en el dashboard para filtrarlo por Universidad y rando de año e identificar los programas que más inscritos tienen. 
+# Esta gráfica en el dashboard nos funciona como argumento para solicitar ayuda a las Universidades en la recolección de la información 
+
+#¡HACER UN BOX PLOT PARA EL PROMEDIO!
+e5 <- educacion$icetex
+e5[, `Promedio Credito`:=`Valor Credito`/`Numero Creditos`]
+e5_1 <- plot_ly(
+    data = e5
+    , x = ~Ano, y = ~`Numero Creditos`, color = ~`Estado Credito`, type = "bar") %>% 
+    layout(title = "Número de Créditos otorgados por el ICETEX"
+           , yaxis = list(title = 'Número de Créditos')
+           , xaxis = list(title = 'Año')
+           #, barmode = 'stack'
+           )
+# El número de créditos creció significativamente en el 2013 tanto para créditos nuevos como para renovados
+
+e5_2 <- plot_ly(
+    data = e5
+    , x = ~Ano, y = ~`Valor Credito`, color = ~`Estado Credito`, type = "bar") %>% 
+    layout(title = "Número de Créditos otorgados por el ICETEX"
+           , yaxis = list(title = 'Valor Crédito')
+           , xaxis = list(title = 'Año')
+           #, barmode = 'stack'
+    )
+# El crecimiento en el número de créditos fue directamente proporcional al valor de dichos créditos. 
+
+# Calculando el crédito promedio
+e5_3 <- plot_ly(
+    data = e5
+    , x = ~Ano, y = ~(`Valor Credito`/`Numero Creditos`), color = ~`Estado Credito`, type = "bar") %>% 
+    layout(title = "Número de Créditos otorgados por el ICETEX"
+           , yaxis = list(title = 'Valor Crédito')
+           , xaxis = list(title = 'Año')
+           #, barmode = 'stack'
+    )

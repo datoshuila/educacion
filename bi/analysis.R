@@ -191,33 +191,134 @@ e4_7_1 <- plot_ly(
 
 #¡HACER UN BOX PLOT PARA EL PROMEDIO!
 e5 <- educacion$icetex
-e5[, `Promedio Credito`:=`Valor Credito`/`Numero Creditos`]
+
 e5_1 <- plot_ly(
-    data = e5
-    , x = ~Ano, y = ~`Numero Creditos`, color = ~`Estado Credito`, type = "bar") %>% 
+    data = e5[, sum(`Numero Creditos`), keyby = .(`Ano`, `Estado Credito`)]
+    , x = ~Ano, y = ~`V1`, color = ~`Estado Credito`, type = "bar") %>% 
     layout(title = "Número de Créditos otorgados por el ICETEX"
            , yaxis = list(title = 'Número de Créditos')
            , xaxis = list(title = 'Año')
            #, barmode = 'stack'
            )
-# El número de créditos creció significativamente en el 2013 tanto para créditos nuevos como para renovados
+# El número de créditos creció significativamente en el 2013 y 2014 tanto para créditos nuevos como para renovados
+# Siempre el número de créditos nuevos ha sido mayor que el de renovados. 
+# Al parecer los estudiantes no logran mantener el crédito o los montos por los que lo piden son pequeños
 
 e5_2 <- plot_ly(
-    data = e5
-    , x = ~Ano, y = ~`Valor Credito`, color = ~`Estado Credito`, type = "bar") %>% 
-    layout(title = "Número de Créditos otorgados por el ICETEX"
-           , yaxis = list(title = 'Valor Crédito')
+    data = e5[, sum(`Valor Credito`), keyby = .(`Ano`, `Estado Credito`)]
+    , x = ~Ano, y = ~`V1`, color = ~`Estado Credito`, type = "bar") %>% 
+    layout(title = "Créditos otorgados por el ICETEX"
+           , yaxis = list(title = 'Valor de Créditos')
            , xaxis = list(title = 'Año')
            #, barmode = 'stack'
-    )
+           )
 # El crecimiento en el número de créditos fue directamente proporcional al valor de dichos créditos. 
+# Se conservan las proporciones de créditos nuevos como renovados
 
-# Calculando el crédito promedio
-e5_3 <- plot_ly(
-    data = e5
-    , x = ~Ano, y = ~(`Valor Credito`/`Numero Creditos`), color = ~`Estado Credito`, type = "bar") %>% 
-    layout(title = "Número de Créditos otorgados por el ICETEX"
-           , yaxis = list(title = 'Valor Crédito')
+# PROMEDIO DE CRÉDITO OTORGADO
+e5_3 <- plot_ly(data = e5, x = ~`Promedio Credito`, type = "histogram")
+# La mayoría de promedios está en entre 1 y 5 millones. 
+
+e5_3_1 <- plot_ly(alpha = 0.6) %>%
+    add_histogram(x = ~e5[, `Promedio Credito`]) %>%
+    layout(barmode = "overlay"
+           , xaxis = list(title = 'Promedio Crédito')
+           , yaxis = list(title = 'Frecuencia de Créditos')
+           )
+# Tener cuidado con esta cifra: esta frecuencia de créditos no es la original sino que es por línea de crédito. Si tuviésemos crédito por crédito sería verídica esta cifra.
+
+e5_3_2 <- plot_ly(
+    data = e5[, sum(`Valor Credito`) / sum(`Numero Creditos`), keyby = .(`Ano`, `Estado Credito`)]
+    , x = ~Ano, y = ~`V1`, color = ~`Estado Credito`, type = "bar") %>% 
+    layout(title = "Créditos otorgados por el ICETEX"
+           , yaxis = list(title = 'Promedio de Crédito')
            , xaxis = list(title = 'Año')
            #, barmode = 'stack'
     )
+# Hay una tencendia al alza en los créditos asignados. Aún así, el promedio de crédito está entre los 2.5 millones y 3 millones. 
+
+e5_3_3 <- plot_ly(
+    data = e5[, sum(`Valor Credito`) / sum(`Numero Creditos`), keyby = .(`Ano`, `Linea Credito`)]
+    , x = ~Ano, y = ~`V1`, color = ~`Linea Credito`, type = "bar") %>% 
+    layout(title = "Créditos otorgados por el ICETEX"
+           , yaxis = list(title = 'Promedio de Crédito')
+           , xaxis = list(title = 'Año')
+           #, barmode = 'stack'
+    )
+e5_3_4 <- e5[, sum(`Valor Credito`) / sum(`Numero Creditos`), keyby = .(`Ano`, `Linea Credito`)][order(V1, decreasing = TRUE)]
+write.table(x = e5_3_4, file = "bi/e5_3_4.csv", sep = ",", row.names = F, na = "")
+# En promedio los créditos más grandes los dan a estudios en el exterior:
+# Pasantías intercambio 20/80: 16 millones
+# Exterior Perfeccionamiento en Idiomas 20/80: 15 millones
+# Exterior US$16000-20/80: 15 millones
+# Exterior US$8000-20/80: 14 millones
+# Luego vienen los créditos para postgrado en el país sin deudor: 7 millones, con deudor: 6.7 millones. 
+# La brecha entre los créditos al exterior y nacional es de casi el doble. 
+# El promedio de créditos para postgrado sin deudor ha ido en aumento más rápido que con deudor. 
+# Luego vienen los Cursos Oficiales y Suboficiales: oscilan entre los 4.5 millones y 5. No fluctúan mucho. 
+# En la categoría ECAES con Deudor solo hay cifras del 2011 (4 millones en promedio): ¿se dejó de continuar el programa? o ¿no hay cifras?
+# LA siguiente categoría es "Maestria" en donde el promedio de crédito es 4 millones. 
+
+e6 <- educacion$icfes
+e6_1 <- plot_ly(
+    data = e6[, mean(`Puntaje Prom`), keyby = .(`Ano`, `Materia`)]
+    , x = ~Ano, y = ~`V1`, color = ~`Materia`, type = "bar") %>% 
+    layout(title = "Créditos otorgados por el ICETEX"
+           , yaxis = list(title = 'Promedio de Crédito')
+           , xaxis = list(title = 'Año')
+           #, barmode = 'stack'
+    )
+# Se calcula un promedio porque no tenemos los datos originales. Tener cuidado con esta cifra
+e6_1_1 <- e6[, mean(`Puntaje Prom`), keyby = .(`Ano`, `Materia`)][order(V1, decreasing = TRUE)]
+write.table(x = e6_1_1, file = "bi/e6_1_1.csv", sep = ",", row.names = F, na = "")
+
+# RANKING
+# Para realizar un ranking eliminamos :
+# Ciencias Naturales
+# Razonamiento Cuantitativo 
+# Competencia ciudadana
+# Lectura crítica
+# porque solo hay datos del 2014.
+logic <- !e6$Materia %in% c("Competencia Ciudadana", "Razonamiento cuantitativo", "Ciencias Naturales", "Lectura crítica")
+
+# Cálculo del ranking:
+e6_2 <-dcast.data.table(data = e6[logic]
+    , formula = "Materia ~ Ano"
+    , value.var = "Puntaje Prom"
+    , fun.aggregate = function(x){
+        round(mean(x, na.rm = FALSE), 1)
+    }
+)
+write.table(x = e6_2, file = "bi/e6_2.csv", sep = ",", row.names = F, na = "")
+e6_2_1 <- plot_ly(
+    data = e6[logic, mean(`Puntaje Prom`, na.rm  = FALSE), keyby = .(Materia, Ano)][order(V1, decreasing = T)]
+    , x = ~factor(Ano), y = ~V1, color = ~Materia) %>% add_lines()  %>%
+    layout(title = 'Materias')
+
+e6_3 <- e6_2
+e6_3[, `2011` := frankv(`2011`, order = -1)]
+e6_3[, `2012` := frankv(`2012`, order = -1)]
+e6_3[, `2013` := frankv(`2013`, order = -1)]
+e6_3[, `2014` := frankv(`2014`, order = -1)]
+e6_3 <- melt.data.table(e6_3, id.vars = "Materia", variable.name = "Ano", value.name = "Ranking")
+write.table(x = e6_3, file = "bi/e6_3.csv", sep = ",", row.names = F, na = "")
+
+# Ranking generado solo con los números, no con los porcentajes. No se encontró nada raro.
+e6_3_1 <- plot_ly(e6_3, x = ~Ano, y = ~Ranking, color = ~Materia) %>% add_lines()
+# Inglés saltó 5 puestos en el Ranking y llegó de 2. 
+# Matemáticas saltó 2 y llegó de primero
+# Química retrocedió 4 puestos y terminó de 6. 
+# Filosofía siempre ha sido el útlimo de todas las materias. 
+
+# Análisis de la desviación estándar
+e6_4 <- e6[order(`Desv. Est`, decreasing = T)]
+# Las materias con mayor desviación estándar son filosofía, matemáticas y física. 
+# Esto quiere decir que hay mayor dispersión en los datos (son más los que sacan muy bajo puntaje o muy alto puntaje)
+# Esto implica una dispersión mayor en la educación de estas materias. 
+# LAs materias con menor dispersión son inglés, biología, química y lenguaje. 
+# Esto significa que son materias que no tienen mucha dispersión entre las calificaciones de los estudiantes.
+
+e7 <- educacion$instituciones_educativas
+# Es la tabla de instituciones educativas y no se le hará análisis. 
+
+e8 <- educacion$matriculas

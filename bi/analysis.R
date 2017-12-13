@@ -11,13 +11,17 @@ educacion <- lapply(X = ts, FUN = function(x){
     print(paste0("leyendo ", x))
     data.table(pool::dbGetQuery(conn, query))
 }) ; names(educacion) <- unlist(strsplit(ts, ".sql"))
+saveRDS(educacion, "educacion.RDS")
+
 
 # ---- Clasificación Icfes Establecimiento Educativos ----
 # Ranking de los mejores colegios en el Departamento
 e1 <- educacion$clasificacion_icfes_estab_educativos
+
 e1[, Resultante := paste(Colegio, Municipio, Tipo)]
 t1 <- dcast.data.table(e1, formula = "Puesto ~ Ano", value.var = "Resultante")
 write.table(x = t1, file = "bi/e1.csv", sep = ",", row.names = F, na = "")
+
 # TODO: Incluir esta tabla en el top de los colegios en la sección de Bachillerato. 
 # Especificar cómo es calculado el índice y de dónde viene cada categoría. En el 2012
 # las categorías eran "Muy Superior" y "Alto" y luego son letras: "A+", "A". 
@@ -26,6 +30,8 @@ write.table(x = t1, file = "bi/e1.csv", sep = ",", row.names = F, na = "")
 
 # ---- Comportamiento de los Alumnos ----
 e2 <- educacion$comportamiento_alumnos
+write.table(x = e2, file = "bi/e2.csv", sep = ",", row.names = F, na = "")
+
 e2_1 <- dcast.data.table(data = e2
     , formula = "Municipio ~ Ano"
     , value.var = "P_Aprobados"
@@ -85,6 +91,8 @@ e2_6 <- plot_ly(e2_4[Municipio %in% c("Neiva", "Pitalito", "Garzón", "La Plata"
 
 # ---- Directivos Docentes ----
 e3 <- educacion$directivos_docentes
+write.table(x = e3, file = "bi/e3.csv", sep = ",", row.names = F, na = "")
+
 e3_1<- dcast.data.table(data= e3, formula = "Categoria ~ Ano", fun.aggregate = function(x){sum(x, na.rm = TRUE)}, value.var = "Numero")
 write.table(x = e3_1, file = "bi/e3_1.csv", sep = ",", row.names = F, na = "")
 # La cifra de Coordinadores y Rectores se han mantenido constante en los últimos años
@@ -118,6 +126,7 @@ e3_2_2 <- plot_ly(
 
 # ---- Docentes de las Universidades ----
 e4 <- educacion$docentes_universidades
+write.table(x = e4, file = "bi/e4.csv", sep = ",", row.names = F, na = "")
 
 # A continuación el número de DATOS (no docentes) 
 e4_1 <- plot_ly(
@@ -191,6 +200,7 @@ e4_7_1 <- plot_ly(
 
 #¡HACER UN BOX PLOT PARA EL PROMEDIO!
 e5 <- educacion$icetex
+write.table(x = e5, file = "bi/e5.csv", sep = ",", row.names = F, na = "")
 
 e5_1 <- plot_ly(
     data = e5[, sum(`Numero Creditos`), keyby = .(`Ano`, `Estado Credito`)]
@@ -260,6 +270,8 @@ write.table(x = e5_3_4, file = "bi/e5_3_4.csv", sep = ",", row.names = F, na = "
 # LA siguiente categoría es "Maestria" en donde el promedio de crédito es 4 millones. 
 
 e6 <- educacion$icfes
+write.table(x = e6, file = "bi/e6.csv", sep = ",", row.names = F, na = "")
+
 e6_1 <- plot_ly(
     data = e6[, mean(`Puntaje Prom`), keyby = .(`Ano`, `Materia`)]
     , x = ~Ano, y = ~`V1`, color = ~`Materia`, type = "bar") %>% 
@@ -319,6 +331,30 @@ e6_4 <- e6[order(`Desv. Est`, decreasing = T)]
 # Esto significa que son materias que no tienen mucha dispersión entre las calificaciones de los estudiantes.
 
 e7 <- educacion$instituciones_educativas
+write.table(x = e7, file = "bi/e7.csv", sep = ",", row.names = F, na = "")
 # Es la tabla de instituciones educativas y no se le hará análisis. 
 
 e8 <- educacion$matriculas
+write.table(x = e8, file = "bi/e8.csv", sep = ",", row.names = F, na = "")
+
+label = c("Tipo Institucion", "Area", "Tipo Nivel Educativo", "Numero Grado", "Municipio")[3]
+e8$label <- e8[, label, with = FALSE]
+
+plot_ly(
+    data = e8[
+        # Ano %in% c(2015, 2014, 2013) & 
+        # Municipio %in% "Garzón"
+        , sum(`Numero Matriculas`, na.rm = TRUE)
+        , keyby = .(Ano, label)]
+    , x = ~Ano
+    , y = ~V1
+    , color = ~label
+    , colors = c("#d3ceaf", "#3C3A2E")
+    , type = "bar"
+    , hoverinfo = "text"
+    , text = ~paste0(
+        "Año: ", `Ano`
+        , "<br>Texto : ", label
+        , "<br>Total Matriculas: ", V1
+    )
+) %>% layout(barmode = "stack")

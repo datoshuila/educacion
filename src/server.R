@@ -45,6 +45,7 @@ server <- function(input, output, session) {
     values <- reactiveValues()
     observeEvent(input$municipio, values$municipio <- input$municipio)
     observeEvent(input$ano, values$ano <- input$ano)
+    observeEvent(input$categoria, values$categoria <- input$categoria)
     
     output$parrafo <- renderUI(expr = {
         if(length(values$municipio) == 0){
@@ -65,28 +66,32 @@ server <- function(input, output, session) {
     output$graph <- renderPlotly(expr = {
         # municipio = paste(c("Neiva", "Garzón"), collapse = "|")
         # ano = c(2010, 2015)
+        # categoria = "Tipo Institucion"
         municipio <- paste(values$municipio, collapse = "|")
         ano <- values$ano
+        categoria <- values$categoria
         
         # Cálculo para matriculados:
         m <- paste0("
         SELECT 
 	        m.\"Ano\"
-            , \"Tipo Institucion\"
+            , \"", categoria, "\"
             , sum(m.\"Numero Matriculas\") AS \"Numero Matriculas\"
                 FROM (", parameters$q.matriculas, ") AS m
         WHERE \"Ano\" >= ", ano[1], " 
             AND \"Ano\" <= ", ano[2], " 
             AND \"Municipio\" SIMILAR TO '(", municipio, ")%'
-        GROUP BY \"Ano\", \"Tipo Institucion\"
+        GROUP BY \"Ano\", \"", categoria, "\"
         ORDER BY \"Ano\"
         ")
         m <- data.table(pool::dbGetQuery(conn, m), key = "Ano")
+        categorias <- unique(m[[categoria]])
+        
         temp <- m[, sum(`Numero Matriculas`, na.rm = T), keyby = "Ano"]
         setnames(temp, old = "V1", new = "Numero Matriculas")        
         m <- temp[dcast.data.table(
             data=m
-            , formula = "Ano ~`Tipo Institucion`"
+            , formula = paste0("Ano ~`", categoria, "`")
             , value.var = "Numero Matriculas"
         )]
         

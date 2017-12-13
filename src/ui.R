@@ -16,8 +16,8 @@ ui <- function(){shinyUI(fluidPage(
     
     # Map
     , fluidRow(style="position:relative;"
-        , tags$iframe(src = "http://qgiscloud.com/HzarateSIGDEHU/SIGDEHU/", height=380, width="100%")
-        # , leafletOutput("map", height=380, width="100%")
+        #, tags$iframe(src = "http://qgiscloud.com/HzarateSIGDEHU/SIGDEHU/", height=380, width="100%")
+         , leafletOutput("map", height=380, width="100%")
         # , absolutePanel(
         #     top = 5
         #     , right = 5
@@ -84,11 +84,23 @@ ui <- function(){shinyUI(fluidPage(
                     # Export
                     , div(
                     # style="float: left; margin-right: 15px;",
-                    selectInput("fileType", "Escoge el formato para exportar"
-                    , choices=c(`Separado por comas (CSV)`="csv"
-                    , `Archivos Shape ESRI`= "esri")
-                    , selected="csv"
+                    selectInput("categoria", "Escoge la categoría a colorear"
+                        , choices=c(
+                            `Tipo de Institución`="Tipo Institucion"
+                            , `Área (Urbana o Rural)`= "Area"
+                            , `Tipo de Nivel Educativo` = "Tipo Nivel Educativo"
+                            , `Grado` = "Grado"
+                        )
+                        , selected = "Tipo Institucion"
+                        )
                     )
+                    , HTML("<label>&nbsp;</label><br />")
+                    , div(
+                    # style="float: left; margin-right: 15px;",
+                    selectInput("fileType", "Escoge el formato para exportar"
+                        , choices=c(`Separado por comas (CSV)`="csv", `Archivos Shape ESRI`= "esri")
+                        , selected="csv"
+                        )
                     )
                     , HTML("<label>&nbsp;</label><br />")
                     , downloadButton("saveData", "Guardar resultados", class="btn-info")

@@ -2,6 +2,28 @@
 
 source("load.R", local = TRUE) 
 
+plot_bar <- function(data, title = ""){
+    plot_ly(
+        data = data
+        , x = ~Ano
+        , y = ~V1
+        , color = ~label
+        , colors = c("#d3ceaf", "#3C3A2E")
+        , type = "bar"
+        , hoverinfo = "text"
+        , text = ~paste0(
+            "Año: ", `Ano`
+            , "<br>Categoría : ", label
+            , "<br>Matrículas: ", V1
+        )
+    ) %>% layout(
+        barmode = "stack"
+        , title = title
+        , xaxis = list(title = "Año")
+        , yaxis = list(title = "Número de matriculados")
+    )
+}
+
 # Get all file names in SQL format
 ts <- list.files(c("sql"), pattern="\\.(sql|SQL)$", recursive = TRUE, full.names = FALSE)
 
@@ -11,8 +33,7 @@ educacion <- lapply(X = ts, FUN = function(x){
     print(paste0("leyendo ", x))
     data.table(pool::dbGetQuery(conn, query))
 }) ; names(educacion) <- unlist(strsplit(ts, ".sql"))
-saveRDS(educacion, "educacion.RDS")
-
+saveRDS(educacion, "bi/educacion.RDS")
 
 # ---- Clasificación Icfes Establecimiento Educativos ----
 # Ranking de los mejores colegios en el Departamento
@@ -337,24 +358,62 @@ write.table(x = e7, file = "bi/e7.csv", sep = ",", row.names = F, na = "")
 e8 <- educacion$matriculas
 write.table(x = e8, file = "bi/e8.csv", sep = ",", row.names = F, na = "")
 
+plot_ly(
+    data = e8[, sum(`Numero Matriculas`, na.rm = TRUE), keyby = Municipio]
+    , labels = ~Municipio, values = ~V1, type = "pie"
+)
+
 label = c("Tipo Institucion", "Area", "Tipo Nivel Educativo", "Numero Grado", "Municipio")[3]
 e8$label <- e8[, label, with = FALSE]
+labels <- unique(e8$label)
+data = e8[
+    # Ano %in% c(2015, 2014, 2013) & 
+    # Municipio %in% "Garzón"
+    , sum(`Numero Matriculas`, na.rm = TRUE)
+    , keyby = .(Ano, label)]
+plot_bar(data)
+e8_1 <- dcast.data.table(e8, formula = "Municipio ~ label", fun.aggregate = function(x){sum(x, na.rm = TRUE)}, value.var = "Numero Matriculas")
+# e8_1[, Total := rowSums(.SD), .SDcols = labels]
+e8_1[, (paste0(labels, "_p")) := round(100*(.SD)/rowSums(.SD), 1), .SDcols = as.character(labels)]
+write.table(x = e8_1, file = "bi/e8_1.csv", sep = ",", row.names = F, na = "")
 
-plot_ly(
-    data = e8[
-        # Ano %in% c(2015, 2014, 2013) & 
-        # Municipio %in% "Garzón"
-        , sum(`Numero Matriculas`, na.rm = TRUE)
-        , keyby = .(Ano, label)]
-    , x = ~Ano
-    , y = ~V1
-    , color = ~label
-    , colors = c("#d3ceaf", "#3C3A2E")
-    , type = "bar"
-    , hoverinfo = "text"
-    , text = ~paste0(
-        "Año: ", `Ano`
-        , "<br>Texto : ", label
-        , "<br>Total Matriculas: ", V1
-    )
-) %>% layout(barmode = "stack")
+# En el shiny colocar dos pestañas: una para la gráfica como está ahora y otra para la table de los municipios para saber los porcentajes.
+# En general, la data no está completa. No tiene información de 2005 y posiblemente haya un error en las cifras del 2006. 
+# 1. Por Tipo de Institución: El 90% de los registros en el Huila a través de los años es de colegios oficiales.
+# Los municipios Acevedo, Altamira, Colombia, Nátaga Oporapa, Paicol, Palestina, Tello, Teruel y Villavieja no tienen registros de mtrículas en colegios no oficiales (valor = 0). 
+# Aipe solo tiene 3 matriculados en todos los años y Agrado 16 (relativamente pocos).
+# 
+# 2. Por Área Urbana: Los municipios altamente "urbanos" son Yaguará (95.1), Neiva (92.8), Altamira (86.6) y Hobo (85)
+# El porcentaje entre matriculados del área rural (36%) y urbana (64%) en general se conserva con el pasar de los años
+#
+# 3. Por Tipo de Nivel Educativo: Los municipios que más tienen estudiantes inscritos en décimo y once (Media Vocacional) son Yaguará, Neiva, Tesalia y Altamira. 
+# Hay que calcular por población en edad de estudio para saber qué municipio tienen en proporción una mejor cobertura en educación
+# Los municipios que tienen peor media vocacional (décimo y once) son Acevedo, Colombia y Saladoblanco
+# Los municipios que tienen en proporción mayor número de estudiantes en Educación Básica son Acevedo, Colombia y Salado Blanco
+# ES URGENTE HACER EL COMPARATIVO DE COBERTURA POR MUNICIPIO.
+
+# Matrículas USCO
+e9 <- educacion$matriculas_usco
+
+label = c("Departamento", "Municipio", "Nivel Educativo")[1]
+    e9$label <- e9[, label, with = FALSE]
+    labels <- unique(e8$label)
+    data = e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
+    e9_1 <- plot_bar(data, title = "Número de matriculas USCO con origen Huila")
+    # Casi la totalidad de los estudiantes en la USCO provienen del Huila
+    data = e9[!Departamento %in% "Huila", sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
+    e9_1.1 <- plot_bar(data, title = "Número de matriculas USCO sin origen Huila")
+    # Si quitamos el filtro del Huila, se tienen registros solo del 2009 y la mayoría son de la Guajira. ¿por qué?
+    data = e9[!Departamento %in% c("Huila", "La Guajira"), sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
+    e9_1.2 <- plot_bar(data, title = "Número de matriculas USCO sin origen Huila ni Guajira")
+    # La dispersión mejora, el Departamento de donde provienen más estudiantes es Tolima y se tienen mejores registros para el año 2013.
+
+label = c("Departamento", "Municipio", "Nivel Educativo")[2]
+    e9$label <- e9[, label, with = FALSE]
+    labels <- unique(e8$label)
+    data = e9[!is.na(label), sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
+    e9_2 <- plot_bar(data, title = "Municipio de procedencia de los estudiantes de la USCO")
+    # La mayoría de los estudiantes del Huila provienen de Neiva
+    cast <- dcast.data.table(data, formula = "label ~ Ano", value.var = "V1")
+    cast[, (paste0(unique(data$Ano), "_p")) := round(100*prop.table(x = as.matrix(.SD), margin = 2), 1), .SDcols = unique(data$Ano)]
+    

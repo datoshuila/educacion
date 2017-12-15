@@ -23,6 +23,13 @@ plot_bar <- function(data, title = ""){
         , yaxis = list(title = "Número de matriculados")
     )
 }
+plot_pie <- function(data, title){
+    plot_ly(
+        data = data
+        , labels = ~label, values = ~V1, type = "pie"
+    ) %>% layout(title = title)
+}    
+
 
 # Get all file names in SQL format
 ts <- list.files(c("sql"), pattern="\\.(sql|SQL)$", recursive = TRUE, full.names = FALSE)
@@ -410,10 +417,20 @@ label = c("Departamento", "Municipio", "Nivel Educativo")[1]
 
 label = c("Departamento", "Municipio", "Nivel Educativo")[2]
     e9$label <- e9[, label, with = FALSE]
-    labels <- unique(e8$label)
+    labels <- unique(e9$label)
     data = e9[!is.na(label), sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
     e9_2 <- plot_bar(data, title = "Municipio de procedencia de los estudiantes de la USCO")
     # La mayoría de los estudiantes del Huila provienen de Neiva
-    cast <- dcast.data.table(data, formula = "label ~ Ano", value.var = "V1")
-    cast[, (paste0(unique(data$Ano), "_p")) := round(100*prop.table(x = as.matrix(.SD), margin = 2), 1), .SDcols = unique(data$Ano)]
-    
+    data = e9[!is.na(label) & !Municipio %in% "Neiva", sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
+    e9_3 <- plot_bar(data, title = "Municipio de procedencia de los estudiantes de la USCO sin Neiva")
+    # Omitimos Neiva para identificar los municipios de procedencia de los matriculados.
+    # El número de matrículados por fuera de Neiva ha aumentado linealmente considerando que no se tiene información de 2011 y 2012. 
+
+label = c("Departamento", "Municipio", "Nivel Educativo")[3]
+    e9$label <- e9[, label, with = FALSE]
+    labels <- unique(e9$label)
+    data = e9[!is.na(label), sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
+    e9_4 <- plot_bar(data)
+    # Es muy poca la data que hay de postgrado (solo en 2013 y 2014)
+
+# ANALIZAR AHORA LOS PROGRAMAS

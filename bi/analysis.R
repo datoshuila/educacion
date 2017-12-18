@@ -41,6 +41,7 @@ educacion <- lapply(X = ts, FUN = function(x){
     data.table(pool::dbGetQuery(conn, query))
 }) ; names(educacion) <- unlist(strsplit(ts, ".sql"))
 saveRDS(educacion, "bi/educacion.RDS")
+# readRDS("bi/educacion.RDS")
 
 # ---- Clasificación Icfes Establecimiento Educativos ----
 # Ranking de los mejores colegios en el Departamento
@@ -433,4 +434,8 @@ label = c("Departamento", "Municipio", "Nivel Educativo")[3]
     e9_4 <- plot_bar(data)
     # Es muy poca la data que hay de postgrado (solo en 2013 y 2014)
 
-# ANALIZAR AHORA LOS PROGRAMAS
+# Nube de palabras con los programas y el tamaño es el número de matriculados
+words <- e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = Programa]
+wordcloud::wordcloud(words = words$Programa, freq = words$V1 , random.order=FALSE, rot.per=0.35, 
+                     colors=brewer.pal(8, "Dark2"))
+words[order(-V1)]

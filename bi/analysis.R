@@ -466,30 +466,22 @@ e9_6_2 <- plot_ly(e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, Prog
 #  Los demas años tienen cambios más fuertes y hay carreras que inclusive no tenían más de 1000 matriculados. 
 
 e10 <- educacion$poblacion_edad_escolar
-
+# hay dos categorías que se pueden encapsular en una: "Población entre 11 y 14 años" y "Población entre 15 y 16 años". Se encapsulan en "Población entre 11 y 16"
 e10[
     Rango %in% c(
         "Población en edad escolar 11- 14 años"
         , "Población en edad escolar 15- 16 años")
     , Rango := "Población en edad escolar 11- 16 años"
 ]
-e10$Rango <- as.character(e10$Rango)
-e10_1 <- dcast.data.table(e10[, sum(Poblacion, na.rm = TRUE), keyby = .(Ano, Rango)], Rango~Ano)
-# hay dos categorías que se pueden encapsular en una: "Población entre 11 y 14 años" y "Población entre 15 y 16 años". Se encapsulan en "Población entre 11 y 16"
+e10[, Rango := factor(Rango)]
+write.table(x = e10, file = "bi/e10.csv", sep = ",", row.names = F, na = "")
 
-write.table(x = e10_1, file = "bi/e10_1.csv", sep = ",", row.names = F, na = "")
+e10[, c("label", "V1") := .(Rango, Poblacion)]
+plot_bar(e10[Municipio %in% c("Pitalito"), sum(Poblacion), keyby = c("Ano", "label")])
+# La población en edad escolar es relativamente similar en todos los años (2010, 2015) con una leve pendiente hacia abajo en la cantidad de matriculados. 
+# Esta inconsistencia en los datos (o falta de variabilidad) puede deberse a que los datos son proyecciones del DANE 2005 y no reflejan información actualizada de la realidad de colegios en el Huila
+# Es por esta razón que pueden haber en ocasiones en que el porcentaje de cobertura de estudiantes sea mayor a 100%.
+# La tendencia es constante a través de los municipios. 
 
-
-temp <- e10_1[
-    Rango %in% c(
-        'Población en edad escolar 11- 14 años'
-        , 'Población en edad escolar 15- 16 años'
-        , 'Población en edad escolar 11- 16 años')
-    , colSums(.SD, na.rm = T), .SDcols = c("2010", "2011", "2012", "2013", "2014", "2015")
-]
-e10_2 <- e10_1[Rango %in% 'Población en edad escolar 11- 16 años'
-      , (c("2010", "2011", "2012", "2013", "2014", "2015")):=as.list(temp)
-][!Rango %in% c(
-    'Población en edad escolar 11- 14 años'
-    , 'Población en edad escolar 15- 16 años'
-)]
+e11 <- educacion$sena
+# Debido a falta de información no se puede realizar un análisis completo de Educación

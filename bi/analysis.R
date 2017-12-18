@@ -41,7 +41,7 @@ educacion <- lapply(X = ts, FUN = function(x){
     data.table(pool::dbGetQuery(conn, query))
 }) ; names(educacion) <- unlist(strsplit(ts, ".sql"))
 saveRDS(educacion, "bi/educacion.RDS")
-# readRDS("bi/educacion.RDS")
+# educacion <- readRDS("bi/educacion.RDS")
 
 # ---- Clasificación Icfes Establecimiento Educativos ----
 # Ranking de los mejores colegios en el Departamento
@@ -405,7 +405,7 @@ e9 <- educacion$matriculas_usco
 
 label = c("Departamento", "Municipio", "Nivel Educativo")[1]
     e9$label <- e9[, label, with = FALSE]
-    labels <- unique(e8$label)
+    labels <- unique(e9$label)
     data = e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
     e9_1 <- plot_bar(data, title = "Número de matriculas USCO con origen Huila")
     # Casi la totalidad de los estudiantes en la USCO provienen del Huila
@@ -413,7 +413,7 @@ label = c("Departamento", "Municipio", "Nivel Educativo")[1]
     e9_1.1 <- plot_bar(data, title = "Número de matriculas USCO sin origen Huila")
     # Si quitamos el filtro del Huila, se tienen registros solo del 2009 y la mayoría son de la Guajira. ¿por qué?
     data = e9[!Departamento %in% c("Huila", "La Guajira"), sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
-    e9_1.2 <- plot_bar(data, title = "Número de matriculas USCO sin origen Huila ni Guajira")
+    e9_1.2 <- plot_bar(data, title = "Origen de matriculas USCO sin origen Huila ni Guajira")
     # La dispersión mejora, el Departamento de donde provienen más estudiantes es Tolima y se tienen mejores registros para el año 2013.
 
 label = c("Departamento", "Municipio", "Nivel Educativo")[2]
@@ -436,6 +436,60 @@ label = c("Departamento", "Municipio", "Nivel Educativo")[3]
 
 # Nube de palabras con los programas y el tamaño es el número de matriculados
 words <- e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = Programa]
-wordcloud::wordcloud(words = words$Programa, freq = words$V1 , random.order=FALSE, rot.per=0.35, 
+e9_5 <- wordcloud::wordcloud(words = words$Programa, freq = words$V1 , random.order=FALSE, rot.per=0.35, 
                      colors=brewer.pal(8, "Dark2"))
 words[order(-V1)]
+# históricamente, las carreras en la USCO que más matriculados tiene son:
+# 1. Contaduría Pública - Nocturna
+# 2. Administración de Empresas - Nocturna
+# 3. Medicina
+# 4. Ingeniería Agrícula - Neiva
+# 5. Derecho - Diurna - Neiva
+# 6. Ingeniería de Petróleos
+
+# Ranking the carreras con más matriculados por año
+e9_6 <- dcast.data.table(data = e9
+                         , formula = "Programa ~ Ano"
+                         , value.var = "Num Matrículas"
+                         , fun.aggregate = function(x){
+                             round(sum(x, na.rm = TRUE), 1)
+                         }
+)
+e9_6_1 <- e9_6[rowSums(e9_6[,colnames(e9_6)[-1], with = FALSE])>4000]
+write.table(x = e9_6_1, file = "bi/e9_6_1.csv", sep = ",", row.names = F, na = "")
+
+e9_6_2 <- plot_ly(e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, Programa)][V1>1000]
+                  , x = ~Ano, y = ~V1, color = ~Programa) %>% add_lines()  %>%
+    layout(title = '')
+# Entre las carreras que tienen más de 1000 inscritos cada año están Contaduría, Administración e Ingeniería Agrícola
+# El cambio en general del 2013 al 2014 no es tan grande (a excepción de Contaduría Pública que se reduce de 3200 matriculados a 2849 matriculados)
+#  Los demas años tienen cambios más fuertes y hay carreras que inclusive no tenían más de 1000 matriculados. 
+
+e10 <- educacion$poblacion_edad_escolar
+
+e10[
+    Rango %in% c(
+        "Población en edad escolar 11- 14 años"
+        , "Población en edad escolar 15- 16 años")
+    , Rango := "Población en edad escolar 11- 16 años"
+]
+e10$Rango <- as.character(e10$Rango)
+e10_1 <- dcast.data.table(e10[, sum(Poblacion, na.rm = TRUE), keyby = .(Ano, Rango)], Rango~Ano)
+# hay dos categorías que se pueden encapsular en una: "Población entre 11 y 14 años" y "Población entre 15 y 16 años". Se encapsulan en "Población entre 11 y 16"
+
+write.table(x = e10_1, file = "bi/e10_1.csv", sep = ",", row.names = F, na = "")
+
+
+temp <- e10_1[
+    Rango %in% c(
+        'Población en edad escolar 11- 14 años'
+        , 'Población en edad escolar 15- 16 años'
+        , 'Población en edad escolar 11- 16 años')
+    , colSums(.SD, na.rm = T), .SDcols = c("2010", "2011", "2012", "2013", "2014", "2015")
+]
+e10_2 <- e10_1[Rango %in% 'Población en edad escolar 11- 16 años'
+      , (c("2010", "2011", "2012", "2013", "2014", "2015")):=as.list(temp)
+][!Rango %in% c(
+    'Población en edad escolar 11- 14 años'
+    , 'Población en edad escolar 15- 16 años'
+)]

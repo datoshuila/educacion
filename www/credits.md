@@ -4,7 +4,7 @@ Para sugerir cambios o inconsistencias en los datos disponibles, por favor conta
 
 <label>Autores</label>
 
-[Cabrera, Camilo](https://www.linkedin.com/in/camilo-cabrera-21663b17/); [Perdomo, Efrain](https://www.linkedin.com/in/efrain-perdomo-cardozo-7172ab67/)
+[Cabrera, Camilo](https://www.linkedin.com/in/camilo-cabrera-21663b17/)
 
 <label>Créditos</label>
 

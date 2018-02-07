@@ -62,6 +62,7 @@ server <- function(input, output, session) {
                  , tx, " entre ", paste0(values$ano, collapse = " y ")))
     })
     output$fechas <- renderText(expr = paste0(values$ano, collapse = " - "))
+    
     # Graph1
     output$graph <- renderPlotly(expr = {
         # municipio = paste(c("Neiva", "Garzón"), collapse = "|")

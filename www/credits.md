@@ -8,7 +8,7 @@ Para sugerir cambios o inconsistencias en los datos disponibles, por favor conta
 
 <label>Créditos</label>
 
-El formato de la herramienta así como el código de referencia fueron tomados de: HarvestChoice, 2016. *"Routing and Travel Time Tool for sub-Saharan Africa (version 1.0)"* International Food Policy Research Institute, Washington, DC. Available on-line at http://tools.harvestchoice.org/traveltime/.
+El formato de la herramienta así como el código de referencia fueron tomados de: HarvestChoice, 2016. *"Routing and Travel Time Tool for sub-Saharan Africa (version 1.0)"* International Food Policy Research Institute, Washington, DC. Disponible en internet en http://tools.harvestchoice.org/traveltime/.
 
 <label>Cómo citar</label>
 

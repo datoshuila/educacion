@@ -13,4 +13,4 @@ SELECT
     , c.coal_porce_traslados as "P_Traslados"
 FROM "Educacion"."comportamiento_alumnos" AS c
 LEFT JOIN "public"."municipio" AS m ON c."coal_codMunicipio" = m.mun_codigo
-LEFT JOIN "Educacion"."tipo_institucion" AS ti ON c."coal_tipo_institucion" = ti.tpin_codigo
+LEFT JOIN "public"."tipo_institucion_educativa" AS ti ON c."coal_tipo_institucion" = ti.tpin_codigo

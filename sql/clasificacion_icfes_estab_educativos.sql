@@ -12,5 +12,5 @@ FROM "Educacion".clasificacion_icfes_estab_educativos as j
 	LEFT JOIN "public"."municipio" AS mun ON j."cies_codMunicipio" = mun.mun_codigo
 	LEFT JOIN "public"."anio" AS a ON j."cies_anio" = a.ani_codigo
     LEFT JOIN "public"."semestre" AS s ON s.sem_codigo = j.cies_semestre
-	LEFT JOIN "Educacion"."tipo_institucion" AS ti ON j.cies_tipo_institucion = ti.tpin_codigo
+	LEFT JOIN "public"."tipo_institucion_educativa" AS ti ON j.cies_tipo_institucion = ti.tpin_codigo
     LEFT JOIN "Educacion".instituciones_educativas as j5 on j.cies_institucion_educativa = j5.ined_codigo

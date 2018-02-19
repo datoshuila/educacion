@@ -1,0 +1,10 @@
+SELECT 
+	j1.mun_nombre as "Municipio"
+    , j2.ani_nombre as "Ano"
+    , nine_tipo_institucion
+    , nine_tipo_plantel
+    , nine_area
+    , nine_num_instituciones
+FROM "Educacion".numero_instituciones_educativas as j
+	LEFT JOIN public.municipio as j1 on j."nine_codMunicipio" = j1.mun_codigo
+    LEFT JOIN public.anio as j2 on j.nine_anio = j2.ani_codigo

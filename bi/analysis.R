@@ -58,6 +58,7 @@ write.table(x = t1, file = "bi/e1.csv", sep = ",", row.names = F, na = "")
 # El top de colegios
 
 # ---- Comportamiento de los Alumnos ----
+# Información de estudiantes aprobados, reprobados, desertores y trasladados. 
 e2 <- educacion$comportamiento_alumnos
 write.table(x = e2, file = "bi/e2.csv", sep = ",", row.names = F, na = "")
 
@@ -118,7 +119,8 @@ e2_6 <- plot_ly(e2_4[Municipio %in% c("Neiva", "Pitalito", "Garzón", "La Plata"
 # Paicol iba bien en el ranking y en el 2013 desmejoró sustancialmente pero en el 2014 se recuperó
 # Isnos siempre estuvo entre los top 10 (a excepción del 2010 que estuvo de 16) pero en el 2014 llegó al puesto 30.5. 
 
-# ---- Directivos Docentes ----
+# ---- Directivos Docentes ---
+# Número de directivos docentes por categoría, municipio y año. 
 e3 <- educacion$directivos_docentes
 write.table(x = e3, file = "bi/e3.csv", sep = ",", row.names = F, na = "")
 
@@ -154,6 +156,7 @@ e3_2_2 <- plot_ly(
 # Hay que correlacionar el número de docentes con el desempeño de los estudiantes y el presupuesto para cada municipio. ¿existe correlación?
 
 # ---- Docentes de las Universidades ----
+# Número de docentes de las universidades por aǹo, prepgrado, posgrado, carrera, categoría, género. 
 e4 <- educacion$docentes_universidades
 write.table(x = e4, file = "bi/e4.csv", sep = ",", row.names = F, na = "")
 
@@ -227,8 +230,10 @@ e4_7_1 <- plot_ly(
 # Esta gráfica hay que colocarla en el dashboard para filtrarlo por Universidad y rando de año e identificar los programas que más inscritos tienen. 
 # Esta gráfica en el dashboard nos funciona como argumento para solicitar ayuda a las Universidades en la recolección de la información 
 
-#¡HACER UN BOX PLOT PARA EL PROMEDIO!
+# ---- Créditos del ICETEX ----
+# Número de créditos y valor por estado de crédito, línea de crédito y año
 e5 <- educacion$icetex
+e5[, `Promedio Crédito` := `Valor Credito` / `Numero Creditos`]
 write.table(x = e5, file = "bi/e5.csv", sep = ",", row.names = F, na = "")
 
 e5_1 <- plot_ly(
@@ -255,11 +260,11 @@ e5_2 <- plot_ly(
 # Se conservan las proporciones de créditos nuevos como renovados
 
 # PROMEDIO DE CRÉDITO OTORGADO
-e5_3 <- plot_ly(data = e5, x = ~`Promedio Credito`, type = "histogram")
+e5_3 <- plot_ly(data = e5, x = ~`Promedio Crédito`, type = "histogram")
 # La mayoría de promedios está en entre 1 y 5 millones. 
 
 e5_3_1 <- plot_ly(alpha = 0.6) %>%
-    add_histogram(x = ~e5[, `Promedio Credito`]) %>%
+    add_histogram(x = ~e5[, `Promedio Crédito`]) %>%
     layout(barmode = "overlay"
            , xaxis = list(title = 'Promedio Crédito')
            , yaxis = list(title = 'Frecuencia de Créditos')
@@ -298,6 +303,8 @@ write.table(x = e5_3_4, file = "bi/e5_3_4.csv", sep = ",", row.names = F, na = "
 # En la categoría ECAES con Deudor solo hay cifras del 2011 (4 millones en promedio): ¿se dejó de continuar el programa? o ¿no hay cifras?
 # LA siguiente categoría es "Maestria" en donde el promedio de crédito es 4 millones. 
 
+# ---- Puntaje promedio del ICFES ----
+# Puntaje promedio del ICFES por Año, Alcance (Nacional o Internacional), Materia y Semestre. No tiene información por Municipio.
 e6 <- educacion$icfes
 write.table(x = e6, file = "bi/e6.csv", sep = ",", row.names = F, na = "")
 
@@ -359,9 +366,14 @@ e6_4 <- e6[order(`Desv. Est`, decreasing = T)]
 # LAs materias con menor dispersión son inglés, biología, química y lenguaje. 
 # Esto significa que son materias que no tienen mucha dispersión entre las calificaciones de los estudiantes.
 
+# ---- Instituciones Educativas ----
+# No hay mucha información para hacer análisis estadístico
 e7 <- educacion$instituciones_educativas
 write.table(x = e7, file = "bi/e7.csv", sep = ",", row.names = F, na = "")
 # Es la tabla de instituciones educativas y no se le hará análisis. 
+
+# ---- Matrículas bachillerato ----
+# Información de matrículas por año, municipcio, tipo de institución, área (urbana o rural), Tipo de nivel educativo y grado. 
 
 e8 <- educacion$matriculas
 write.table(x = e8, file = "bi/e8.csv", sep = ",", row.names = F, na = "")
@@ -400,7 +412,8 @@ write.table(x = e8_1, file = "bi/e8_1.csv", sep = ",", row.names = F, na = "")
 # Los municipios que tienen en proporción mayor número de estudiantes en Educación Básica son Acevedo, Colombia y Salado Blanco
 # ES URGENTE HACER EL COMPARATIVO DE COBERTURA POR MUNICIPIO.
 
-# Matrículas USCO
+# ---- Matrículas USCO ----
+# Información de estudiantes matriculados en la USCO por Año, Departamento, Municipio, Género, Nivel Educativo, Programa, Semestre
 e9 <- educacion$matriculas_usco
 
 label = c("Departamento", "Municipio", "Nivel Educativo")[1]
@@ -465,6 +478,8 @@ e9_6_2 <- plot_ly(e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, Prog
 # El cambio en general del 2013 al 2014 no es tan grande (a excepción de Contaduría Pública que se reduce de 3200 matriculados a 2849 matriculados)
 #  Los demas años tienen cambios más fuertes y hay carreras que inclusive no tenían más de 1000 matriculados. 
 
+# ---- Población en edad de estudio ----
+# Categorías por Año, Municipio y Rango. 
 e10 <- educacion$poblacion_edad_escolar
 # hay dos categorías que se pueden encapsular en una: "Población entre 11 y 14 años" y "Población entre 15 y 16 años". Se encapsulan en "Población entre 11 y 16"
 e10[
@@ -485,3 +500,9 @@ plot_bar(e10[Municipio %in% c("Pitalito"), sum(Poblacion), keyby = c("Ano", "lab
 
 e11 <- educacion$sena
 # Debido a falta de información no se puede realizar un análisis completo de Educación
+
+e12 <- educacion$educacion_adultos
+e13 <- educacion$numero_instituciones_educativas
+e14 <- educacion$programa_nacional_alfabetizacion
+e15 <- educacion$registro_universidades
+e16 <- educacion$top_programas_universitarios

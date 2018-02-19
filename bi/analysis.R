@@ -124,7 +124,7 @@ e2_6 <- plot_ly(e2_4[Municipio %in% c("Neiva", "Pitalito", "Garzón", "La Plata"
 e3 <- educacion$directivos_docentes
 write.table(x = e3, file = "bi/e3.csv", sep = ",", row.names = F, na = "")
 
-e3_1<- dcast.data.table(data= e3, formula = "Categoria ~ Ano", fun.aggregate = function(x){sum(x, na.rm = TRUE)}, value.var = "Numero")
+e3_1 <- dcast.data.table(data= e3, formula = "Categoria ~ Ano", fun.aggregate = function(x){sum(x, na.rm = TRUE)}, value.var = "Numero")
 write.table(x = e3_1, file = "bi/e3_1.csv", sep = ",", row.names = F, na = "")
 # La cifra de Coordinadores y Rectores se han mantenido constante en los últimos años
 # Director rural y Directores se podrían combinar (?)
@@ -355,8 +355,8 @@ write.table(x = e6_3, file = "bi/e6_3.csv", sep = ",", row.names = F, na = "")
 
 # Ranking generado solo con los números, no con los porcentajes. No se encontró nada raro.
 e6_3_1 <- plot_ly(e6_3, x = ~Ano, y = ~Ranking, color = ~Materia) %>% add_lines()
-# Inglés saltó 5 puestos en el Ranking y llegó de 2. 
-# Matemáticas saltó 2 y llegó de primero
+# Inglés saltó 5 puestos en el Ranking y llegó de 2 del 2013 al 2014.
+# Matemáticas saltó 2 y llegó de primero del 2013 al 2014. 
 # Química retrocedió 4 puestos y terminó de 6. 
 # Filosofía siempre ha sido el útlimo de todas las materias. 
 
@@ -423,12 +423,17 @@ label = c("Departamento", "Municipio", "Nivel Educativo")[1]
     labels <- unique(e9$label)
     data = e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
     e9_1 <- plot_bar(data, title = "Número de matriculas USCO con origen Huila")
+    e9_1
+    
     # Casi la totalidad de los estudiantes en la USCO provienen del Huila
     data = e9[!Departamento %in% "Huila", sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
     e9_1.1 <- plot_bar(data, title = "Número de matriculas USCO sin origen Huila")
+    e9_1.1
+    
     # Si quitamos el filtro del Huila, se tienen registros solo del 2009 y la mayoría son de la Guajira. ¿por qué?
     data = e9[!Departamento %in% c("Huila", "La Guajira"), sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
     e9_1.2 <- plot_bar(data, title = "Origen de matriculas USCO sin origen Huila ni Guajira")
+    e9_1.2
     # La dispersión mejora, el Departamento de donde provienen más estudiantes es Tolima y se tienen mejores registros para el año 2013.
 
 label = c("Departamento", "Municipio", "Nivel Educativo")[2]
@@ -436,9 +441,13 @@ label = c("Departamento", "Municipio", "Nivel Educativo")[2]
     labels <- unique(e9$label)
     data = e9[!is.na(label), sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
     e9_2 <- plot_bar(data, title = "Municipio de procedencia de los estudiantes de la USCO")
+    e9_2
+    
     # La mayoría de los estudiantes del Huila provienen de Neiva
     data = e9[!is.na(label) & !Municipio %in% "Neiva", sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
     e9_3 <- plot_bar(data, title = "Municipio de procedencia de los estudiantes de la USCO sin Neiva")
+    e9_3
+    
     # Omitimos Neiva para identificar los municipios de procedencia de los matriculados.
     # El número de matrículados por fuera de Neiva ha aumentado linealmente considerando que no se tiene información de 2011 y 2012. 
 
@@ -447,12 +456,14 @@ label = c("Departamento", "Municipio", "Nivel Educativo")[3]
     labels <- unique(e9$label)
     data = e9[!is.na(label), sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, label)]
     e9_4 <- plot_bar(data)
+    e9_4
     # Es muy poca la data que hay de postgrado (solo en 2013 y 2014)
 
 # Nube de palabras con los programas y el tamaño es el número de matriculados
 words <- e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = Programa]
 e9_5 <- wordcloud::wordcloud(words = words$Programa, freq = words$V1 , random.order=FALSE, rot.per=0.35, 
                      colors=brewer.pal(8, "Dark2"))
+e9_5
 words[order(-V1)]
 # históricamente, las carreras en la USCO que más matriculados tiene son:
 # 1. Contaduría Pública - Nocturna
@@ -471,11 +482,13 @@ e9_6 <- dcast.data.table(data = e9
                          }
 )
 e9_6_1 <- e9_6[rowSums(e9_6[,colnames(e9_6)[-1], with = FALSE])>4000]
+e9_6_1
 write.table(x = e9_6_1, file = "bi/e9_6_1.csv", sep = ",", row.names = F, na = "")
 
 e9_6_2 <- plot_ly(e9[, sum(`Num Matrículas`, na.rm = TRUE), keyby = .(Ano, Programa)][V1>1000]
                   , x = ~Ano, y = ~V1, color = ~Programa) %>% add_lines()  %>%
     layout(title = '')
+e9_6_2
 # Entre las carreras que tienen más de 1000 inscritos cada año están Contaduría, Administración e Ingeniería Agrícola
 # El cambio en general del 2013 al 2014 no es tan grande (a excepción de Contaduría Pública que se reduce de 3200 matriculados a 2849 matriculados)
 #  Los demas años tienen cambios más fuertes y hay carreras que inclusive no tenían más de 1000 matriculados. 
@@ -491,6 +504,7 @@ e10[
     , Rango := "Población en edad escolar 11- 16 años"
 ]
 e10[, Rango := factor(Rango)]
+e10
 write.table(x = e10, file = "bi/e10.csv", sep = ",", row.names = F, na = "")
 
 e10[, c("label", "V1") := .(Rango, Poblacion)]

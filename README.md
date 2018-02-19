@@ -33,12 +33,16 @@ El objetivo es entregar las métricas del desempeño en educación para que la S
 
 ## 5. Visualización de datos
 
-1. Definición de las gráficas:
-    1. Nombres
-    2. Contenidos
-    3. Tipo (barchart, piechart, timeseries, etc)
+1. Definición de la conexión a la base de datos:
+    1. Flujo de conexión a la base de datos.
+    2. Protocolos de seguridad (SSL, Encriptación).
+    3. Cargue de datos en cliente o servidor. 
+2. Definición de las gráficas:
+    1. Nombres.
+    2. Contenidos.
+    3. Tipo (barchart, piechart, timeseries, etc).
     4. Filtros locales y globales. 
-2. Contenido de los textos:
+3. Contenido de los textos:
     1. Información relevantes.
     2. Filtros locales y globales. 
     3. Referencias a otros portales.

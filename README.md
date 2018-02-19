@@ -32,3 +32,13 @@ El objetivo es entregar las métricas del desempeño en educación para que la S
 ## 4. Procesamiento de los datos y generación de modelos
 
 ## 5. Visualización de datos
+
+1. Definición de las gráficas:
+    1. Nombres
+    2. Contenidos
+    3. Tipo (barchart, piechart, timeseries, etc)
+    4. Filtros locales y globales. 
+2. Contenido de los textos:
+    1. Información relevantes.
+    2. Filtros locales y globales. 
+    3. Referencias a otros portales.

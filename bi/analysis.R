@@ -137,15 +137,17 @@ e3_2 <- dcast.data.table(data= e3[Categoria %in% "Orientador"], formula = "Munic
 write.table(x = e3_2, file = "bi/e3_2.csv", sep = ",", row.names = F, na = "")
 # Al mirar la data pueden estar pasando dos cosas: El 2012 fue en el único año en el que se recolectó juiciosamente la información
 # O el 2012 tiene información  mezclada de otras categorías que los demás años no tienen.
-
+#Dato atípico 2012 para orientador hay demasiados antes del 2012 no había nada 
 # Gráfica de las categorias a los largo de los años.
+#2012 mas datos, mas colegios mas presupuestos mayor población
 e3_2_1 <- plot_ly(
     data = e3[, sum(Numero, na.rm = TRUE), keyby = c("Ano", "Categoria")]
     , x = ~Ano, y = ~V1, color = ~Categoria) %>%
     add_lines()
+
 # Mezclando Directores y Director rural la tendencia es a la baja.
 # En el 2009 hubo una caída brusca del número de docentes y se recuperó
-
+# Lo que mas sobresale son los docentes pero parece ser que los docentes se convierten en docentes de aula
 # Gráfica del Número de Directivos docentes en cada municipio a lo largo de los años.
 e3_2_2 <- plot_ly(
     data = e3[, sum(Numero, na.rm = TRUE), keyby = c("Ano", "Municipio")]
@@ -245,9 +247,9 @@ e5_1 <- plot_ly(
            #, barmode = 'stack'
            )
 # El número de créditos creció significativamente en el 2013 y 2014 tanto para créditos nuevos como para renovados
-# Siempre el número de créditos nuevos ha sido mayor que el de renovados. 
 # Al parecer los estudiantes no logran mantener el crédito o los montos por los que lo piden son pequeños
-
+#El numero de créditos nuevos se mantiene relativamente igual.
+#El número de créditos nuevos es  menor que el de renovados
 e5_2 <- plot_ly(
     data = e5[, sum(`Valor Credito`), keyby = .(`Ano`, `Estado Credito`)]
     , x = ~Ano, y = ~`V1`, color = ~`Estado Credito`, type = "bar") %>% 

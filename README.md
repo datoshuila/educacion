@@ -9,9 +9,10 @@ La información de este tablero de control proviene de los archivos CSV enviados
 
 ## 2. Alistamiento de la información
 
-1. Subida de los archivos CSV a una base de datos PostgreSQL.
+1. Desarrollo de un modelo de datos para la data.
 2. Creación de Vistas dentro de la base de datos para acelerar el proceso de consulta.
-3. Lectura de los datos a través del archivo "analysis.R" en la carpeta "bi".
+3. Subida de los archivos CSV a una base de datos PostgreSQL.
+4. Lectura de los datos a través del archivo "analysis.R" en la carpeta "bi".
 
 Algunos hallazgos relevantes:
 1. En la tabla "matriculas" es necesario incluir la institución educativa a la que hace parte cada fila. 
@@ -30,6 +31,9 @@ El objetivo es entregar las métricas del desempeño en educación para que la S
 6. ¿qué sector económico tiene el mayor número de cursos en el SENA? ¿a qué nivel de formación?
 
 ## 4. Procesamiento de los datos y generación de modelos
+
+1. Configuración del código
+    1. Creación del archivo "requirements.sh" para instalar todos los paquetes necesarios para correr el procesamiento. 
 
 ## 5. Visualización de datos
 

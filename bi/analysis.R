@@ -2,6 +2,7 @@
 
 source("load.R", local = TRUE) 
 
+# Función desarrollada para la creación de gráficos de barras
 plot_bar <- function(data, title = ""){
     plot_ly(
         data = data
@@ -23,6 +24,8 @@ plot_bar <- function(data, title = ""){
         , yaxis = list(title = "Número de matriculados")
     )
 }
+
+# Función desarrollada para la creación de gráficos de pastel
 plot_pie <- function(data, title){
     plot_ly(
         data = data
@@ -31,10 +34,10 @@ plot_pie <- function(data, title){
 }    
 
 
-# Get all file names in SQL format
+# Obtener todos los nombres en formato SQL
 ts <- list.files(c("sql"), pattern="\\.(sql|SQL)$", recursive = TRUE, full.names = FALSE)
 
-# Store all data.tables into one single list and at the end name them.
+# Almacenar todas las fuentes de información (tablas) en una lista de objetos y al final nombrar cada elemento.
 educacion <- lapply(X = ts, FUN = function(x){
     query <- getSQL(paste0("sql/", x))
     print(paste0("leyendo ", x))
@@ -514,9 +517,8 @@ plot_bar(e10[Municipio %in% c("Pitalito"), sum(Poblacion), keyby = c("Ano", "lab
 # Es por esta razón que pueden haber en ocasiones en que el porcentaje de cobertura de estudiantes sea mayor a 100%.
 # La tendencia es constante a través de los municipios. 
 
+# No hay suficiente información en las siguientes tablas; lo que limita el análisis. =
 e11 <- educacion$sena
-# Debido a falta de información no se puede realizar un análisis completo de Educación
-
 e12 <- educacion$educacion_adultos
 e13 <- educacion$numero_instituciones_educativas
 e14 <- educacion$programa_nacional_alfabetizacion
